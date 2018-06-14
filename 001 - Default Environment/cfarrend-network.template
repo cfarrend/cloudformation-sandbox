@@ -1,0 +1,128 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+    "Description" : "Stack for VPC and its subnets",
+
+    "Metadata" : {
+
+    },
+
+    "Parameters" : {
+        "pAZoneA" : {
+            "Default" : "ap-southeast-2a",
+            "Description" : "Availability Zone A",
+            "Type" : "AWS::EC2::AvailabilityZone::Name"
+        },
+
+        "pAZoneB" : {
+            "Default" : "ap-southeast-2b",
+            "Description" : "Availability Zone B",
+            "Type" : "AWS::EC2::AvailabilityZone::Name"
+        },
+
+        "pAZoneC" : {
+            "Default" : "ap-southeast-2c",
+            "Description" : "Availability Zone C",
+            "Type" : "AWS::EC2::AvailabilityZone::Name"
+        }
+    },
+
+    "Mappings" : {
+
+    },
+
+    "Conditions" : {
+
+    },
+
+    "Resources" : {
+        "InternetGateway" : {
+            "Type" : "AWS::EC2::InternetGateway"
+        },
+
+        "Vpc" : {
+            "Type" : "AWS::EC2::VPC",
+            "Properties" : {
+                "CidrBlock" : "22.0.0.0/16",
+                "Tags" : [
+                    {
+                        "Key" : "Name",
+                        "Value" : "cfarrend-vpc"
+                    }
+                ]
+            }
+        },
+
+        "VpcGatewayAttachment" : {
+            "Type" : "AWS::EC2::VPCGatewayAttachment",
+            "Properties" : {
+                "InternetGatewayId" : { "Ref" : "InternetGateway" },
+                "VpcId" : { "Ref" : "Vpc" }
+            }
+        },
+
+        "SubnetAPublic" : {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "CidrBlock" : "22.0.7.0/24",
+                "AvailabilityZone" : { "Ref" : "pAZoneA"},
+                "VpcId" : { "Ref" : "Vpc" },
+                "MapPublicIpOnLaunch" : true
+            }
+        },
+
+        "SubnetBPublic" : {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "CidrBlock" : "22.0.8.0/24",
+                "AvailabilityZone" : { "Ref" : "pAZoneB"},
+                "VpcId" : { "Ref" : "Vpc" },
+                "MapPublicIpOnLaunch" : true
+            }
+        },
+
+        "SubnetCPublic" : {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "CidrBlock" : "22.0.9.0/24",
+                "AvailabilityZone" : { "Ref" : "pAZoneC"},
+                "VpcId" : { "Ref" : "Vpc" },
+                "MapPublicIpOnLaunch" : true
+            }
+        },
+
+        "SubnetAPrivate" : {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "CidrBlock" : "22.0.4.0/24",
+                "AvailabilityZone" : { "Ref" : "pAZoneA"},
+                "VpcId" : { "Ref" : "Vpc" },
+                "MapPublicIpOnLaunch" : false
+            }
+        },
+
+        "SubnetBPrivate" : {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "CidrBlock" : "22.0.5.0/24",
+                "AvailabilityZone" : { "Ref" : "pAZoneB"},
+                "VpcId" : { "Ref" : "Vpc" },
+                "MapPublicIpOnLaunch" : false
+            }
+        },
+
+        "SubnetCPrivate" : {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "CidrBlock" : "22.0.6.0/24",
+                "AvailabilityZone" : { "Ref" : "pAZoneC"},
+                "VpcId" : { "Ref" : "Vpc" },
+                "MapPublicIpOnLaunch" : false
+            }
+        }
+    },
+
+    "Outputs" : {
+
+    }
+}

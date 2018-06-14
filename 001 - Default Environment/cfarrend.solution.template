@@ -1,0 +1,92 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+    "Description" : "Parent stack for default environment",
+
+    "Metadata" : {
+
+    },
+
+    "Parameters" : {
+        "pTemplateFolder" : {
+            "Default" : "cf-templates-cfarrend",
+            "Description" : "S3 folder containing nested templates",
+            "Type" : "String"
+        },
+
+        "pAZoneA" : {
+            "Default" : "ap-southeast-2a",
+            "Description" : "Availability Zone A",
+            "Type" : "AWS::EC2::AvailabilityZone::Name"
+        },
+
+        "pAZoneB" : {
+            "Default" : "ap-southeast-2b",
+            "Description" : "Availability Zone B",
+            "Type" : "AWS::EC2::AvailabilityZone::Name"
+        },
+
+        "pAZoneC" : {
+            "Default" : "ap-southeast-2c",
+            "Description" : "Availability Zone C",
+            "Type" : "AWS::EC2::AvailabilityZone::Name"
+        }
+    },
+
+    "Mappings" : {
+        "mTemplates" : {
+            "Network" : {
+                "Name" : "cfarrend-network.template"
+            }
+        }
+    },
+
+    "Conditions" : {
+
+    },
+
+    "Resources" : {
+        "NetworkStack" : {
+            "Type" : "AWS::CloudFormation::Stack",
+            "Properties" : {
+                "Parameters" : {
+                    "pAZoneA" : {
+                        "Ref" : "pAZoneA"
+                    },
+
+                    "pAZoneB" : {
+                        "Ref" : "pAZoneB"
+                    },
+
+                    "pAZoneC" : {
+                        "Ref" : "pAZoneC"
+                    }
+                },
+
+                "TemplateURL" : {
+                    "Fn::Join" : [
+                        "",
+                        [
+                            "https://s3.amazonaws.com/",
+                            {
+                                "Ref" : "pTemplateFolder"
+                            },
+                            "/",
+                            {
+                                "Fn::FindInMap" : [
+                                    "mTemplates",
+                                    "Network",
+                                    "Name"
+                                ]
+                            }
+                        ]
+                    ]
+                }
+            }
+        }
+    },
+
+    "Outputs" : {
+
+    }
+}
