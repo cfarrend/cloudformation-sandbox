@@ -10,3 +10,9 @@ Creates the following:
 * Subnets
   * 3 AZ private
   * 3 AZ public
+* Route Tables
+  * Public with public subnet associations + IGW
+  * Private with private subnet associations
+* Network Access Control Lists
+  * Public NACL with public subnet associations
+  * Private NACL with private subnet associations
