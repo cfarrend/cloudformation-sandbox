@@ -1,0 +1,60 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Description",
+
+  "Metadata" : {
+
+  },
+
+  "Parameters" : {
+      "pTemplateFolder" : {
+          "Default" : "cf-skeleton",
+          "Description" : "S3 folder containing nested templates",
+          "Type" : "String"
+      }
+  },
+
+  "Mappings" : {
+      "mTemplates" : {
+          "skeleton" : {
+              "Name" : "skeleton.template"
+          }
+      }
+  },
+
+  "Conditions" : {
+
+  },
+
+  "Resources" : {
+      "skeletonStack" : {
+          "Type" : "AWS::CloudFormation::Stack",
+          "Properties" : {
+              "TemplateURL" : {
+                  "Fn::Join" : [
+                      "",
+                      [
+                          "https://s3.amazonaws.com/",
+                          {
+                              "Ref" : "pTemplateFolder"
+                          },
+                          "/",
+                          {
+                              "Fn::FindInMap" : [
+                                  "mTemplates",
+                                  "skeleton",
+                                  "Name"
+                              ]
+                          }
+                      ]
+                  ]
+              }
+          }
+      }
+  },
+
+  "Outputs" : {
+
+  }
+}
