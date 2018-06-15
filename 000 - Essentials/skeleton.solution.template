@@ -31,6 +31,9 @@
       "skeletonStack" : {
           "Type" : "AWS::CloudFormation::Stack",
           "Properties" : {
+              "Parameters" : {
+                "pTemplateFolder" : { "Ref" : "pTemplateFolder" }
+              },
               "TemplateURL" : {
                   "Fn::Join" : [
                       "",

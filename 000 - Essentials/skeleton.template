@@ -8,7 +8,11 @@
   },
 
   "Parameters" : {
-
+      "pTemplateFolder" : {
+          "Default" : "cf-skeleton",
+          "Description" : "S3 folder containing nested templates",
+          "Type" : "String"
+      }
   },
 
   "Mappings" : {
