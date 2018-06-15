@@ -1,0 +1,140 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Enables AWS Inspector for security analysis of instances and their images",
+
+  "Metadata" : {
+
+  },
+
+  "Parameters" : {
+      "pTagKey" : {
+          "Default" : "Name",
+          "Type" : "String",
+          "Description" : "The name of the key"
+      },
+
+      "pTagValue" : {
+          "Default" : "cfarrend-inspector",
+          "Type" : "String",
+          "Description" : "The name of the value"
+      },
+
+      "pAssessmentDuration" : {
+          "Default" : 3600,
+          "AllowedValues" : [ 900, 3600, 28800, 43200, 86400 ],
+          "Type" : "Number",
+          "Description" : "The duration in seconds for the assessment template"
+      },
+
+      "pAssessmentTargetName" : {
+          "Default" : "cfarrend-assessment-target",
+          "Type" : "String",
+          "Description" : "The name of the assessment target"
+      },
+
+      "pAssessmentTemplateName" : {
+          "Default" : "cfarrend-assessment-template",
+          "Type" : "String",
+          "Description" : "The name of the assessment template"
+      },
+
+      "pSnsTopicName" : {
+          "Default" : "inspector-findings",
+          "Type" : "String",
+          "Description" : "The name of the SNS topic inspector publishes to"
+      }
+  },
+
+  "Mappings" : {
+      "mRulesPackageArns" : {
+          "ap-southeast-2" : {
+              "cve" : "arn:aws:inspector:ap-southeast-2:454640832652:rulespackage/0-D5TGAxiR",
+              "cis" : "arn:aws:inspector:ap-southeast-2:454640832652:rulespackage/0-P8Tel2Xj",
+              "sbp" : "arn:aws:inspector:ap-southeast-2:454640832652:rulespackage/0-Vkd2Vxjq",
+              "rba" : "arn:aws:inspector:ap-southeast-2:454640832652:rulespackage/0-asL6HRgN"
+          }
+      },
+
+      "mInspectorAccounts" : {
+          "ap-southeast-2" : {
+              "arn" : "arn:aws:iam::454640832652:root"
+          }
+      }
+  },
+
+  "Conditions" : {
+
+  },
+
+  "Resources" : {
+      "ResourceGroup" : {
+            "Type" : "AWS::Inspector::ResourceGroup",
+            "Properties" : {
+                "ResourceGroupTags" : [
+                    {
+                        "Key" : { "Ref" : "pTagKey" },
+                        "Value" : { "Ref" : "pTagValue" }
+                    }
+                ]
+            }
+      },
+
+      "AssessmentTarget" : {
+          "Type" : "AWS::Inspector::AssessmentTarget",
+          "Properties" : {
+              "AssessmentTargetName" : { "Ref" : "pAssessmentTargetName" },
+              "ResourceGroupArn" : { "Ref" : "ResourceGroup" }
+          }
+      },
+
+      "AssessmentTemplate" : {
+          "Type" : "AWS::Inspector::AssessmentTemplate",
+          "Properties" : {
+              "AssessmentTemplateName" : { "Ref" : "pAssessmentTemplateName" },
+              "AssessmentTargetArn" : { "Ref" : "AssessmentTarget" },
+              "DurationInSeconds" : { "Ref" : "pAssessmentDuration" },
+              "RulesPackageArns" : [
+                  { "Fn::FindInMap" : [ "mRulesPackageArns", "ap-southeast-2", "cve" ] },
+                  { "Fn::FindInMap" : [ "mRulesPackageArns", "ap-southeast-2", "cis" ] },
+                  { "Fn::FindInMap" : [ "mRulesPackageArns", "ap-southeast-2", "sbp" ] },
+                  { "Fn::FindInMap" : [ "mRulesPackageArns", "ap-southeast-2", "rba" ] }
+              ]
+           }
+      },
+
+      "SnsTopic" : {
+          "Type" : "AWS::SNS::Topic",
+          "Properties" : {
+              "DisplayName" : { "Ref" : "pSnsTopicName" },
+              "TopicName" : { "Ref" : "pSnsTopicName" }
+          }
+      },
+
+      "SnsTopicPolicy" : {
+          "Type" : "AWS::SNS::TopicPolicy",
+          "Properties" : {
+              "PolicyDocument" : {
+                  "Version" : "2012-10-17",
+                  "Id" : { "Fn::Join" : [ "", [ { "Ref" : "pSnsTopicName" }, "-policy" ] ] },
+                  "Statement" : [
+                    {
+                        "Sid" : "Inspector-Publish",
+                        "Effect" : "Allow",
+                        "Principal" : {
+                            "AWS" : { "Fn::FindInMap" : [ "mInspectorAccounts", "ap-southeast-2", "arn" ] }
+                        },
+                        "Action" : "sns:Publish",
+                        "Resource" : { "Ref" : "SnsTopic" }
+                    }
+                  ]
+              },
+              "Topics" : [ { "Ref" : "SnsTopic" } ]
+          }
+      }
+  },
+
+  "Outputs" : {
+
+  }
+}

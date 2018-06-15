@@ -1,0 +1,123 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Parent stack for inspector",
+
+  "Metadata" : {
+
+  },
+
+  "Parameters" : {
+      "pTemplateFolder" : {
+          "Default" : "cfarrend-cloudformation",
+          "Description" : "S3 folder containing nested templates",
+          "Type" : "String"
+      },
+
+      "pTagKey" : {
+          "Default" : "Name",
+          "Type" : "String",
+          "Description" : "The name of the key"
+      },
+
+      "pTagValue" : {
+          "Default" : "cfarrend-inspector",
+          "Type" : "String",
+          "Description" : "The name of the value"
+      },
+
+      "pAssessmentDuration" : {
+          "Default" : 3600,
+          "AllowedValues" : [ 900, 3600, 28800, 43200, 86400 ],
+          "Type" : "Number",
+          "Description" : "The duration in seconds for the assessment template"
+      },
+
+      "pAssessmentTargetName" : {
+          "Default" : "cfarrend-assessment-target",
+          "Type" : "String",
+          "Description" : "The name of the assessment target"
+      },
+
+      "pAssessmentTemplateName" : {
+          "Default" : "cfarrend-assessment-template",
+          "Type" : "String",
+          "Description" : "The name of the assessment template"
+      },
+
+      "pSnsTopicName" : {
+          "Default" : "inspector-findings",
+          "Type" : "String",
+          "Description" : "The name of the SNS topic inspector publishes to"
+      }
+  },
+
+  "Mappings" : {
+      "mTemplates" : {
+          "skeleton" : {
+              "Name" : "inspector.template"
+          }
+      }
+  },
+
+  "Conditions" : {
+
+  },
+
+  "Resources" : {
+      "InspectorStack" : {
+          "Type" : "AWS::CloudFormation::Stack",
+          "Properties" : {
+              "Parameters" : {
+                  "pTagKey" : {
+                      "Ref" : "pTagKey"
+                  },
+
+                  "pTagValue" : {
+                      "Ref" : "pTagValue"
+                  },
+
+                  "pAssessmentDuration" : {
+                      "Ref" : "pAssessmentDuration"
+                  },
+
+                  "pAssessmentTargetName" : {
+                      "Ref" : "pAssessmentTargetName"
+                  },
+
+                  "pAssessmentTemplateName" : {
+                      "Ref" : "pAssessmentTemplateName"
+                  },
+
+                  "pSnsTopicName" : {
+                      "Ref" : "pSnsTopicName"
+                  }
+              },
+
+              "TemplateURL" : {
+                  "Fn::Join" : [
+                      "",
+                      [
+                          "https://s3.amazonaws.com/",
+                          {
+                              "Ref" : "pTemplateFolder"
+                          },
+                          "/",
+                          {
+                              "Fn::FindInMap" : [
+                                  "mTemplates",
+                                  "skeleton",
+                                  "Name"
+                              ]
+                          }
+                      ]
+                  ]
+              }
+          }
+      }
+  },
+
+  "Outputs" : {
+
+  }
+}
